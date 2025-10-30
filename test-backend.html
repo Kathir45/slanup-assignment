@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Test</title>
+</head>
+<body>
+    <h1>Backend API Test</h1>
+    <div id="status">Testing...</div>
+    <div id="result"></div>
+    
+    <script>
+        const API_URL = 'https://event-finder-api-s000.onrender.com';
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        
+        async function testBackend() {
+            statusDiv.textContent = 'Testing backend connection...';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_URL}/api/events`);
+                const endTime = Date.now();
+                
+                statusDiv.textContent = `✅ Backend is UP! (${endTime - startTime}ms)`;
+                statusDiv.style.color = 'green';
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                statusDiv.textContent = `❌ Backend Error: ${error.message}`;
+                statusDiv.style.color = 'red';
+                resultDiv.textContent = 'Backend URL may be incorrect or server is down.';
+            }
+        }
+        
+        testBackend();
+    </script>
+</body>
+</html>

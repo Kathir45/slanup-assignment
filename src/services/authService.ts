@@ -37,22 +37,37 @@ class AuthService {
    */
   async register(data: RegisterData): Promise<AuthResponse> {
     console.log('Register API URL:', `${API_URL}/auth/register`);
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    
+    try {
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Registration failed');
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Registration failed' }));
+        throw new Error(error.error || 'Registration failed');
+      }
+
+      const result: AuthResponse = await response.json();
+      this.setToken(result.token); // Save token to localStorage
+      return result;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - Server may be starting up (Render free tier spins down after inactivity). Please wait 30 seconds and try again.');
+      }
+      throw error;
     }
-
-    const result: AuthResponse = await response.json();
-    this.setToken(result.token);
-    return result;
   }
 
   /**
@@ -60,22 +75,37 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     console.log('Login API URL:', `${API_URL}/auth/login`);
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
+    
+    try {
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Login failed');
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Login failed' }));
+        throw new Error(error.error || 'Login failed');
+      }
+
+      const result: AuthResponse = await response.json();
+      this.setToken(result.token); // Save token to localStorage
+      return result;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - Server may be starting up (Render free tier spins down after inactivity). Please wait 30 seconds and try again.');
+      }
+      throw error;
     }
-
-    const result: AuthResponse = await response.json();
-    this.setToken(result.token);
-    return result;
   }
 
   /**
