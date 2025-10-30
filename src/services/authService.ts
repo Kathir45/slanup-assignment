@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : 'http://localhost:3001/api';
 
 export interface User {
   id: string;
@@ -34,7 +36,8 @@ class AuthService {
    * Register a new user
    */
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    console.log('Register API URL:', `${API_URL}/auth/register`);
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +59,8 @@ class AuthService {
    * Login with email and password
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    console.log('Login API URL:', `${API_URL}/auth/login`);
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +87,7 @@ class AuthService {
       throw new Error('No token found');
     }
 
-    const response = await fetch(`${API_URL}/api/auth/me`, {
+    const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
