@@ -3,9 +3,20 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+// Extend Express Request with additional auth properties
 export interface AuthRequest extends Request {
   userId?: string;
   userEmail?: string;
+}
+
+// Ensure TypeScript recognizes Express Request properties
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+      userEmail?: string;
+    }
+  }
 }
 
 export interface JWTPayload {
